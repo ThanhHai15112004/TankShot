@@ -1,0 +1,12 @@
+# ninja log v5
+60	588	7574227618849263	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	36f8ba8f1bd83a57
+591	798	7574227620961545	D:/Unity2d/TankShooting/tankShoting#1/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/5m2v6p6q/obj/arm64-v8a/libswappywrapper.so	5f40f76d4b141313
+38	3461	7574227646002326	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	2c6dfe3bf40988a7
+46	3464	7574227646678476	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	c464032290d3aeda
+53	3528	7574227647944001	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	ce836d7186607609
+30	3547	7574227648297067	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	de43df671e0886db
+16	3565	7574227647893682	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	d7d0e9acd2eca0a8
+1	3772	7574227650566860	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	64d74056e5f29846
+23	3917	7574227652099002	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	14f5850097af822a
+9	4003	7574227652972879	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	30989f7459d1ccdc
+4004	4098	7574227653982357	D:/Unity2d/TankShooting/tankShoting#1/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/5m2v6p6q/obj/arm64-v8a/libgame.so	5edd0213b5a789c7
