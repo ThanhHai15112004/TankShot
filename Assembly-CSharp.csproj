@@ -62,27 +62,43 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Enemy\EnemyPatrol.cs" />
+    <Compile Include="Assets\Scripts\SceneManagerController.cs" />
     <Compile Include="Assets\Scripts\Player\Bullet.cs" />
+    <Compile Include="Assets\Scripts\Enemy\EnemyAI.cs" />
     <Compile Include="Assets\Scripts\Enemy\EnemyHealth.cs" />
     <Compile Include="Assets\Scripts\BaseHealth.cs" />
     <Compile Include="Assets\Joystick Pack\Scripts\Joysticks\FloatingJoystick.cs" />
     <Compile Include="Assets\Scripts\Player\TankShooting.cs" />
+    <Compile Include="Assets\Scripts\UIManager.cs" />
+    <Compile Include="Assets\Scripts\Player\AutoAimTurret.cs" />
+    <Compile Include="Assets\Scripts\VictoryFlag.cs" />
+    <Compile Include="Assets\Scripts\Enemy\AIShootBehaviour.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayerTankShooting.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerInput.cs" />
+    <Compile Include="Assets\Scripts\Player\TankTrackSpawner.cs" />
+    <Compile Include="Assets\Scripts\Enemy\EnemyTankShooting.cs" />
     <Compile Include="Assets\Joystick Pack\Scripts\Joysticks\FixedJoystick.cs" />
     <Compile Include="Assets\Scripts\Player\AimTurret.cs" />
+    <Compile Include="Assets\Scripts\HealthBarUI.cs" />
     <Compile Include="Assets\Scripts\Enemy\AIDetector.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Enemy\PatrolPath.cs" />
     <Compile Include="Assets\Joystick Pack\Scripts\Joysticks\DynamicJoystick.cs" />
     <Compile Include="Assets\Joystick Pack\Scripts\Base\Joystick.cs" />
     <Compile Include="Assets\Joystick Pack\Examples\JoystickPlayerExample.cs" />
+    <Compile Include="Assets\Scripts\Coin.cs" />
+    <Compile Include="Assets\Scripts\MusicManager.cs" />
     <Compile Include="Assets\Joystick Pack\Scripts\Joysticks\VariableJoystick.cs" />
     <Compile Include="Assets\Scripts\EffectDestroyer.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerHealth.cs" />
+    <Compile Include="Assets\Scripts\Enemy\AIBehaviour.cs" />
     <Compile Include="Assets\Joystick Pack\Examples\JoystickSetterExample.cs" />
-    <Compile Include="Assets\Scripts\Enemy\TankAI.cs" />
-    <Compile Include="Assets\Scripts\Player\TankMover.cs" />
+    <Compile Include="Assets\Scripts\Enemy\AIPatrolBehaviour.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
+    <Compile Include="Assets\Scripts\Player\TankMover.cs" />
+    <Compile Include="Assets\Scripts\ReloadCircleUI.cs" />
+    <Compile Include="Assets\Scripts\Player\ObjectPool.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
