@@ -1,63 +1,60 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class AIDetector : MonoBehaviour
 {
-    [Header("Detection Settings")]
-    [Range(1, 15)]
-    [SerializeField] private float viewRadius = 11;
+    [Range(1, 15)][SerializeField] private float viewRadius = 11;
+    [Range(1, 20)][SerializeField] private float chaseRadius = 15;
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private LayerMask obstacleLayer;
-    [SerializeField] private float detectionInterval = 0.2f;
-
-    [Header("Debug Options")]
-    [SerializeField] private bool showDebugGizmos = true;
 
     public Transform DetectedTarget { get; private set; }
+    public Transform ChaseTarget { get; private set; }
 
-    private void Start()
+    private void Update()
     {
-        StartCoroutine(DetectionRoutine());
-    }
-
-    private IEnumerator DetectionRoutine()
-    {
-        while (true)
-        {
-            DetectTarget();
-            yield return new WaitForSeconds(detectionInterval);
-        }
+        DetectTarget();
     }
 
     private void DetectTarget()
     {
-        Collider2D[] targetsInViewRadius = Physics2D.OverlapCircleAll(transform.position, viewRadius, targetLayer);
-        DetectedTarget = null;
+        DetectedTarget = GetTargetInRange(viewRadius);
+    }
 
-        foreach (var target in targetsInViewRadius)
+    private Transform GetTargetInRange(float radius)
+    {
+        Collider2D[] targetsInRange = Physics2D.OverlapCircleAll(transform.position, radius, targetLayer);
+        foreach (var target in targetsInRange)
         {
             Vector2 directionToTarget = (target.transform.position - transform.position).normalized;
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToTarget, viewRadius, obstacleLayer);
+            float distanceToTarget = Vector2.Distance(transform.position, target.transform.position);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToTarget, distanceToTarget, obstacleLayer);
 
-            if (hit.collider == null) // Không có vật cản chắn
+            if (hit.collider == null)
             {
-                DetectedTarget = target.transform;
-                break;
+                return target.transform;
             }
         }
+        return null;
     }
 
     private void OnDrawGizmos()
     {
-        if (!showDebugGizmos) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, viewRadius);
 
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, viewRadius);
+        Gizmos.DrawWireSphere(transform.position, chaseRadius);
 
         if (DetectedTarget != null)
         {
             Gizmos.color = Color.green;
             Gizmos.DrawLine(transform.position, DetectedTarget.position);
+        }
+
+        if (ChaseTarget != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.position, ChaseTarget.position);
         }
     }
 }

@@ -6,12 +6,11 @@ public class PlayerInput : MonoBehaviour
     [SerializeField]
     private Camera mainCamera;
 
-
     public UnityEvent OnShoot = new UnityEvent();
     public UnityEvent<Vector2> OnMoveBody = new UnityEvent<Vector2>();
-    public UnityEvent<Vector2> OnMoveTurret = new UnityEvent<Vector2>();
 
-    private bool isMobile;
+    [Header("Mobile Controls")]
+    public DynamicJoystick joystick; // Joystick di chuyển
 
     private void Awake()
     {
@@ -19,40 +18,37 @@ public class PlayerInput : MonoBehaviour
         {
             mainCamera = Camera.main;
         }
-
-
     }
 
     private void Update()
     {
-        
-        
-        GetPCInput();
-        
+        if (Application.isMobilePlatform)
+        {
+            GetMobileInput();
+        }
+        else
+        {
+            GetPCInput();
+        }
+    }
+
+    private void GetMobileInput()
+    {
+        // Lấy input từ joystick
+        Vector2 movementVector = new Vector2(joystick.Horizontal, joystick.Vertical);
+        OnMoveBody?.Invoke(movementVector.normalized);
+
     }
 
     private void GetPCInput()
     {
-        // Di chuyển bằng phím
         Vector2 movementVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         OnMoveBody?.Invoke(movementVector.normalized);
 
-        // Điều khiển nòng súng bằng chuột
-        OnMoveTurret?.Invoke(GetMousePosition());
-
-        // Bắn bằng chuột
         if (Input.GetMouseButtonDown(0))
         {
+            Debug.Log("Shoot button pressed");
             OnShoot?.Invoke();
         }
     }
-
-
-    private Vector2 GetMousePosition()
-    {
-        Vector3 mousePosition = Input.mousePosition;
-        mousePosition.z = mainCamera.nearClipPlane;
-        return mainCamera.ScreenToWorldPoint(mousePosition);
-    }
-
 }

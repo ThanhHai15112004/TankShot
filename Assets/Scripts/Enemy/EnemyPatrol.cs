@@ -3,21 +3,22 @@
 public class EnemyPatrol : MonoBehaviour
 {
     [Header("Patrol Settings")]
-    [SerializeField] private PatrolPath patrolPath; // Đường dẫn tuần tra
-    [SerializeField] private float moveSpeed = 3f; // Tốc độ di chuyển
-    [SerializeField] private float rotationSpeed = 100f; // Tốc độ quay của thân xe tăng
-    [SerializeField] private float turretRotationSpeed = 150f; // Tốc độ quay của nòng súng
-    [SerializeField] private float arriveDistance = 0.5f; // Khoảng cách tối thiểu để coi là đã đến điểm tuần tra
+    [SerializeField] private PatrolPath patrolPath;
+    [SerializeField] private float moveSpeed = 3f;
+    [SerializeField] private float rotationSpeed = 100f;
+    [SerializeField] private float turretRotationSpeed = 150f;
+    [SerializeField] private float arriveDistance = 0.5f;
 
     [Header("Combat Settings")]
-    [SerializeField] private AIDetector aiDetector; // Hệ thống phát hiện mục tiêu
-    [SerializeField] private TankShooting tankShooting; // Hệ thống bắn
+    [SerializeField] private AIDetector aiDetector;
+    [SerializeField] private TankShooting tankShooting;
+    [SerializeField] private float shootingRange = 8f;
 
     [Header("References")]
-    [SerializeField] private Transform turret; // Nòng súng (Turret)
+    [SerializeField] private Transform turret;
 
-    private int currentPointIndex = 0; // Chỉ số điểm tuần tra hiện tại
-    private int direction = 1; // Hướng di chuyển (1 = tiến tới, -1 = lùi lại)
+    private int currentPointIndex = 0;
+    private int direction = 1;
 
     private void Start()
     {
@@ -25,54 +26,72 @@ public class EnemyPatrol : MonoBehaviour
         {
             Debug.LogError("PatrolPath is not set or has no points!");
             enabled = false;
-            return;
         }
     }
 
     private void Update()
     {
-        if (aiDetector != null && aiDetector.DetectedTarget != null)
+        if (aiDetector.DetectedTarget != null)
         {
-            EngageTarget(aiDetector.DetectedTarget);
+            float distanceToTarget = Vector2.Distance(transform.position, aiDetector.DetectedTarget.position);
+            if (distanceToTarget <= shootingRange)
+            {
+                EngageTarget(aiDetector.DetectedTarget);
+            }
+            else
+            {
+                ChaseTarget(aiDetector.DetectedTarget);
+            }
+        }
+        else if (aiDetector.ChaseTarget != null)
+        {
+            ChaseTarget(aiDetector.ChaseTarget);
         }
         else
         {
             Patrol();
         }
-        RotateTurret(); // Quay nòng súng
+
+        RotateTurret();
     }
 
     private void Patrol()
     {
-        if (patrolPath.PointCount == 0) return;
+        if (patrolPath == null || patrolPath.PointCount == 0) return;
 
         Transform targetPoint = patrolPath.GetPoint(currentPointIndex);
         if (targetPoint == null) return;
 
-        // Hướng di chuyển đến điểm tuần tra
         Vector2 directionToTarget = (targetPoint.position - transform.position).normalized;
-
-        // Quay thân xe tăng về phía điểm tuần tra
         RotateBody(directionToTarget);
 
-        // Di chuyển về phía điểm tuần tra
-        if (IsFacingTarget(directionToTarget)) // Chỉ di chuyển khi thân xe tăng đã quay đúng hướng
+        if (IsFacingTarget(directionToTarget))
         {
             transform.position += transform.up * moveSpeed * Time.deltaTime;
         }
 
-        // Kiểm tra nếu đã đến gần điểm tuần tra
         if (Vector2.Distance(transform.position, targetPoint.position) <= arriveDistance)
         {
-            // Chuyển sang điểm tiếp theo theo hướng hiện tại
             currentPointIndex += direction;
 
-            // Đảo chiều khi đạt đến điểm cuối hoặc đầu
             if (currentPointIndex >= patrolPath.PointCount || currentPointIndex < 0)
             {
                 direction *= -1;
                 currentPointIndex += direction;
             }
+        }
+    }
+
+    private void ChaseTarget(Transform target)
+    {
+        if (target == null) return;
+
+        Vector2 directionToTarget = (target.position - transform.position).normalized;
+        RotateBody(directionToTarget);
+
+        if (IsFacingTarget(directionToTarget))
+        {
+            transform.position += transform.up * moveSpeed * Time.deltaTime;
         }
     }
 
@@ -86,8 +105,7 @@ public class EnemyPatrol : MonoBehaviour
 
     private bool IsFacingTarget(Vector2 directionToTarget)
     {
-        float dotProduct = Vector2.Dot(transform.up, directionToTarget);
-        return dotProduct > 0.95f; // Gần như đối diện
+        return Vector2.Dot(transform.up, directionToTarget) > 0.95f;
     }
 
     private void RotateTurret()
@@ -97,7 +115,6 @@ public class EnemyPatrol : MonoBehaviour
         Transform target = aiDetector?.DetectedTarget ?? patrolPath.GetPoint(currentPointIndex);
         if (target == null) return;
 
-        // Hướng nòng súng về phía mục tiêu hoặc điểm tuần tra
         Vector2 directionToTarget = (target.position - turret.position).normalized;
         float targetAngle = Mathf.Atan2(directionToTarget.y, directionToTarget.x) * Mathf.Rad2Deg - 90f;
 
@@ -108,11 +125,11 @@ public class EnemyPatrol : MonoBehaviour
 
     private void EngageTarget(Transform target)
     {
-        // Quay thân xe tăng về phía mục tiêu
+        if (target == null) return;
+
         Vector2 directionToTarget = (target.position - transform.position).normalized;
         RotateBody(directionToTarget);
 
-        // Chỉ bắn nếu thân xe tăng đã quay đúng hướng
         if (IsFacingTarget(directionToTarget))
         {
             tankShooting.Shoot();

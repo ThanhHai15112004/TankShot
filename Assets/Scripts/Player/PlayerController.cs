@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -7,20 +8,19 @@ public class PlayerController : MonoBehaviour
     public AimTurret aimTurret;
     public PlayerInput playerInput;
     [SerializeField] private TankShooting tankShooting;
+    [SerializeField] private AIDetector aiDetector;
 
     private void Awake()
     {
         if (playerInput != null)
         {
             playerInput.OnMoveBody.AddListener(HandleMovement);
-            playerInput.OnMoveTurret.AddListener(HandleTurretRotation);
             playerInput.OnShoot.AddListener(HandleShooting);
         }
 
-        // Đảm bảo chỉ PlayerController sử dụng TankShooting
-        if (tankShooting != null)
+        if (aiDetector != null)
         {
-            tankShooting.IsPlayerControlled = true;
+            StartCoroutine(TrackEnemy());
         }
     }
 
@@ -32,19 +32,28 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void HandleTurretRotation(Vector2 pointerPosition)
-    {
-        if (aimTurret != null)
-        {
-            aimTurret.Aim(pointerPosition);
-        }
-    }
-
     public void HandleShooting()
     {
         if (tankShooting != null)
         {
             tankShooting.Shoot();
+        }
+    }
+
+    public IEnumerator TrackEnemy()
+    {
+        while (true)
+        {
+            if (aiDetector != null && aiDetector.DetectedTarget != null)
+            {
+                aimTurret.SetTarget(aiDetector.DetectedTarget); // Chỉ xoay nòng súng
+            }
+            else
+            {
+                aimTurret.SetTarget(null);
+            }
+
+            yield return new WaitForSeconds(0.1f);
         }
     }
 }

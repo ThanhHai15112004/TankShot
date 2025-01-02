@@ -3,15 +3,22 @@
 public class Bullet : MonoBehaviour
 {
     [Header("Bullet Settings")]
-    [SerializeField] private int damage = 10;
+    private int damage; // Sát thương của viên đạn
     [SerializeField] private GameObject explosionEffect;
     [SerializeField] private float maxTravelDistance = 10f;
+
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip explosionSound; // Âm thanh khi nổ
+    private AudioSource audioSource;
 
     private Vector2 startPosition;
 
     private void Start()
     {
         startPosition = transform.position;
+
+        // Thêm AudioSource nếu chưa có
+        audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     private void Update()
@@ -24,23 +31,19 @@ public class Bullet : MonoBehaviour
         }
     }
 
+    public void SetDamage(int bulletDamage)
+    {
+        damage = bulletDamage;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Enemy"))
+        if (collision.CompareTag("Enemy") || collision.CompareTag("Player"))
         {
-            BaseHealth enemyHealth = collision.GetComponent<BaseHealth>();
-            if (enemyHealth != null)
+            BaseHealth health = collision.GetComponent<BaseHealth>();
+            if (health != null)
             {
-                enemyHealth.TakeDamage(damage);
-            }
-            HandleCollision();
-        }
-        else if (collision.CompareTag("Player"))
-        {
-            PlayerHealth playerHealth = collision.GetComponent<PlayerHealth>();
-            if (playerHealth != null)
-            {
-                playerHealth.TakeDamage(damage);
+                health.TakeDamage(damage);
             }
             HandleCollision();
         }
@@ -52,14 +55,21 @@ public class Bullet : MonoBehaviour
 
     private void HandleCollision()
     {
-        // Hiển thị hiệu ứng nổ (nếu có)
         if (explosionEffect != null)
         {
             Instantiate(explosionEffect, transform.position, Quaternion.identity);
         }
 
-        // Hủy viên đạn
+        PlayExplosionSound();
         Destroy(gameObject);
     }
 
+    private void PlayExplosionSound()
+    {
+        if (audioSource != null && explosionSound != null)
+        {
+            audioSource.PlayOneShot(explosionSound);
+        }
+    }
 }
+

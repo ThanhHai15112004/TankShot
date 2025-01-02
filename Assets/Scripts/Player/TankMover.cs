@@ -65,6 +65,13 @@ public class TankMover : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (movementVector == Vector2.zero)
+        {
+            // Nếu không có input, giảm tốc xe tăng
+            currentSpeed -= movementData.deacceleration * Time.fixedDeltaTime;
+            currentSpeed = Mathf.Clamp(currentSpeed, 0, movementData.maxSpeed);
+        }
+
         rb2d.linearVelocity = transform.up * currentSpeed * currentDirection;
 
         float rotationAmount = -movementVector.x * movementData.rotationSpeed * Time.fixedDeltaTime;

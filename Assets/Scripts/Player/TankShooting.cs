@@ -1,90 +1,103 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class TankShooting : MonoBehaviour
+public abstract class TankShooting : MonoBehaviour
 {
     [Header("Shooting Settings")]
-    [SerializeField] private Transform turretBarrel;  // Vị trí đầu nòng súng
-    [SerializeField] private GameObject bulletPrefab; // Prefab của viên đạn
-    [SerializeField] private float bulletSpeed = 20f; // Tốc độ viên đạn
-    [SerializeField] private float reloadTime = 0.5f; // Thời gian nạp đạn
+    [SerializeField] protected Transform turretBarrel;
+    [SerializeField] protected Transform effectPoint;
+    [SerializeField] protected GameObject bulletPrefab;
+    [SerializeField] protected float bulletSpeed = 20f;
+    [SerializeField] protected float reloadTime = 0.5f;
+    [SerializeField] protected int damage = 10;
 
     [Header("Effects")]
-    [SerializeField] private GameObject muzzleFlashPrefab; // Hiệu ứng bắn (tia lửa)
-    [SerializeField] private AudioClip shootSound; // Âm thanh bắn
+    [SerializeField] protected GameObject muzzleFlashPrefab;
+    [SerializeField] protected AudioClip shootSound;
 
-    private bool canShoot = true;
-    private AudioSource audioSource;
-    private Collider2D tankCollider; // Bộ va chạm của xe tăng
+    protected bool canShoot = true;
+    protected AudioSource audioSource;
+    protected Collider2D tankCollider;
+    [SerializeField] protected AimTurret aimTurret;
+    private float reloadTimer;
 
-    public bool IsPlayerControlled = false; // Cờ để phân biệt Player và Enemy
-
-    private void Awake()
+    public bool CanShoot()
     {
-        // Lấy AudioSource nếu có
-        audioSource = GetComponent<AudioSource>();
-
-        // Lấy Collider của xe tăng
-        tankCollider = GetComponent<Collider2D>();
+        return canShoot;
     }
 
-    public void Shoot()
+    protected virtual void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+        tankCollider = GetComponent<Collider2D>();
+        aimTurret = GetComponentInChildren<AimTurret>();
+    }
+
+    public virtual void Shoot()
     {
         if (!canShoot) return;
-
-        // Nếu là Player, chỉ bắn khi có lệnh
-        if (IsPlayerControlled && !Input.GetMouseButtonDown(0)) return;
-
         SpawnAndShootBullet();
         PlayShootEffects();
         StartCoroutine(Reload());
     }
 
-    private void SpawnAndShootBullet()
+    protected virtual void SpawnAndShootBullet()
     {
-        if (!turretBarrel || !bulletPrefab) return;
+        if (turretBarrel == null || bulletPrefab == null) return;
 
-        // Tạo viên đạn mới
         GameObject bullet = Instantiate(bulletPrefab, turretBarrel.position, turretBarrel.rotation);
-
-        // Đặt vận tốc cho đạn
         Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
         if (bulletRb != null)
         {
             bulletRb.linearVelocity = turretBarrel.up * bulletSpeed;
         }
 
-        // Bỏ qua va chạm giữa đạn và xe tăng
+        Bullet bulletScript = bullet.GetComponent<Bullet>();
+        if (bulletScript != null)
+        {
+            bulletScript.SetDamage(damage);
+        }
+
         Collider2D bulletCollider = bullet.GetComponent<Collider2D>();
         if (bulletCollider != null && tankCollider != null)
         {
             Physics2D.IgnoreCollision(bulletCollider, tankCollider);
         }
 
-        // Hủy đạn sau 5 giây để tránh "rác" trong game
         Destroy(bullet, 5f);
     }
 
-    private void PlayShootEffects()
+    protected virtual void PlayShootEffects()
     {
-        // Tạo hiệu ứng tia lửa
-        if (muzzleFlashPrefab != null)
+        if (muzzleFlashPrefab != null && effectPoint != null)
         {
-            GameObject muzzleFlash = Instantiate(muzzleFlashPrefab, turretBarrel.position, turretBarrel.rotation);
+            GameObject muzzleFlash = Instantiate(muzzleFlashPrefab, effectPoint.position, effectPoint.rotation);
             Destroy(muzzleFlash, 0.5f);
         }
 
-        // Phát âm thanh bắn
         if (audioSource != null && shootSound != null)
         {
             audioSource.PlayOneShot(shootSound);
         }
     }
 
-    private IEnumerator Reload()
+    protected IEnumerator Reload()
     {
         canShoot = false;
-        yield return new WaitForSeconds(reloadTime);
+        reloadTimer = 0f; // Đặt lại timer
+
+        while (reloadTimer < reloadTime)
+        {
+            reloadTimer += Time.deltaTime; // Tăng timer
+            yield return null;
+        }
+
         canShoot = true;
+        reloadTimer = reloadTime; // Đặt đầy sau khi hoàn tất
+    }
+
+    public float GetReloadProgress()
+    {
+        return Mathf.Clamp01(reloadTimer / reloadTime); // Tiến trình nạp đạn (0 - 1)
     }
 }

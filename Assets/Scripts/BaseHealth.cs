@@ -3,7 +3,7 @@
 public abstract class BaseHealth : MonoBehaviour
 {
     [Header("Health Settings")]
-    [SerializeField] private int maxHealth = 100; // Máu tối đa
+    [SerializeField] private int maxHealth = 100;
     private int currentHealth;
 
     private void Start()
@@ -16,25 +16,30 @@ public abstract class BaseHealth : MonoBehaviour
         currentHealth = maxHealth;
     }
 
-    public void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
-        if (damage < 0)
-        {
-            return;
-        }
+        if (damage < 0) return;
 
         currentHealth = Mathf.Max(currentHealth - damage, 0);
 
-        // Kiểm tra nếu máu về 0 thì tiêu diệt
         if (currentHealth <= 0)
         {
             Die();
         }
     }
 
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    public int GetMaxHealth()
+    {
+        return maxHealth;
+    }
+
     protected virtual void Die()
     {
-        // Hủy đối tượng (kẻ địch bị tiêu diệt)
         Destroy(gameObject);
     }
 }

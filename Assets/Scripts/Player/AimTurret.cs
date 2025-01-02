@@ -1,27 +1,33 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class AimTurret : MonoBehaviour
 {
     [Header("Turret Settings")]
     public float turretRotationSpeed = 150f;
+    private Transform target;
 
-    public void Aim(Vector2 pointerPosition)
+    public void SetTarget(Transform enemyTarget)
     {
-        Vector2 turretDirection = pointerPosition - (Vector2)transform.position;
-
-        if (turretDirection.sqrMagnitude < Mathf.Epsilon) return;
-
-        float desiredAngle = Mathf.Atan2(turretDirection.y, turretDirection.x) * Mathf.Rad2Deg - 90f;
-        float rotationStep = turretRotationSpeed * Time.deltaTime;
-
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0, 0, desiredAngle), rotationStep);
+        target = enemyTarget;
     }
-
-    public void AimAtTarget(Transform target)
+    private void Update()
     {
         if (target == null) return;
 
         Vector2 direction = (target.position - transform.position).normalized;
+        float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+
+        float currentAngle = transform.eulerAngles.z;
+        float newAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, turretRotationSpeed * Time.deltaTime);
+
+        transform.rotation = Quaternion.Euler(0, 0, newAngle);
+    }
+
+    public void AimAtTarget(Vector3 position)
+    {
+        Vector2 direction = (position - transform.position).normalized;
         float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
 
         float currentAngle = transform.eulerAngles.z;
